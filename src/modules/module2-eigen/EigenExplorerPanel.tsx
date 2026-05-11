@@ -6,11 +6,11 @@ export function EigenExplorerPanel() {
   const { dimension, eigenResult } = useMatrix()
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 12, flex: 1 }}>
-      {/* Eigen info */}
-      <EigenInfo dimension={dimension} eigen={eigenResult} />
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 10, flex: 1 }}>
+      {/* Horizontal eigen info bar */}
+      <EigenInfoBar dimension={dimension} eigen={eigenResult} />
 
-      {/* Vector dial (2D only for now) */}
+      {/* Canvas */}
       {dimension === 2 && (
         <div style={{ flex: 1, position: 'relative', minHeight: 280 }}>
           <VectorDialCanvas />
@@ -31,34 +31,56 @@ export function EigenExplorerPanel() {
   )
 }
 
-function EigenInfo({ dimension, eigen }: { dimension: number; eigen: EigenResult2 | EigenResult3 }) {
+function EigenInfoBar({ dimension, eigen }: { dimension: number; eigen: EigenResult2 | EigenResult3 }) {
   const values = eigen.values
+  const vectors = eigen.vectors
 
   return (
-    <div style={{ fontSize: '0.82rem', lineHeight: 1.6 }}>
-      <div style={{ fontWeight: 600, marginBottom: 6, color: 'var(--accent3)' }}>
-        特征值 (λ)：
+    <div style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 20,
+      fontSize: '0.82rem',
+      lineHeight: 1.5,
+      padding: '6px 10px',
+      background: 'rgba(255,255,255,0.03)',
+      borderRadius: 6,
+      flexWrap: 'wrap',
+    }}>
+      {/* Eigenvalues */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontWeight: 600, color: 'var(--accent3)', whiteSpace: 'nowrap' }}>特征值 λ：</span>
+        {values.map((v, i) => (
+          <span key={i} style={{
+            color: Math.abs(v.imag) < 1e-12 ? 'var(--text-primary)' : '#ff8844',
+            fontFamily: 'monospace',
+            whiteSpace: 'nowrap',
+          }}>
+            λ<sub>{i + 1}</sub> = {Math.abs(v.imag) < 1e-12
+              ? v.real.toFixed(3)
+              : `${v.real.toFixed(2)}±${Math.abs(v.imag).toFixed(2)}i`}
+          </span>
+        ))}
       </div>
-      {values.map((v, i) => (
-        <div key={i} style={{ color: Math.abs(v.imag) < 1e-12 ? 'var(--text-primary)' : '#ff8844' }}>
-          λ{i + 1} = {Math.abs(v.imag) < 1e-12
-            ? v.real.toFixed(3)
-            : `${v.real.toFixed(2)} ± ${Math.abs(v.imag).toFixed(2)}i`}
-        </div>
-      ))}
 
-      {eigen.allReal && eigen.vectors.length > 0 && (
-        <>
-          <div style={{ fontWeight: 600, marginTop: 8, marginBottom: 4, color: 'var(--accent3)' }}>
-            特征向量：
-          </div>
-          {eigen.vectors.map((v, i) => (
-            <div key={i} style={{ color: 'var(--text-secondary)', fontFamily: 'monospace' }}>
-              v{i + 1} = ({v.x.toFixed(2)}, {v.y.toFixed(2)})
-            </div>
-          ))}
-        </>
-      )}
+      {/* Separator */}
+      <span style={{ color: 'var(--text-secondary)', opacity: 0.3 }}>|</span>
+
+      {/* Eigenvectors */}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <span style={{ fontWeight: 600, color: 'var(--accent3)', whiteSpace: 'nowrap' }}>特征向量 v：</span>
+        {eigen.allReal && vectors.length > 0 ? (
+          vectors.map((v, i) => (
+            <span key={i} style={{ color: 'var(--text-secondary)', fontFamily: 'monospace', whiteSpace: 'nowrap' }}>
+              v<sub>{i + 1}</sub> = ({v.x.toFixed(2)}, {v.y.toFixed(2)})
+            </span>
+          ))
+        ) : (
+          <span style={{ color: 'var(--text-secondary)', fontStyle: 'italic' }}>
+            {eigen.allReal ? '—' : '复特征值，无实向量'}
+          </span>
+        )}
+      </div>
     </div>
   )
 }

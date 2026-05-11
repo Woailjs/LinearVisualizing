@@ -43,6 +43,7 @@ export function renderCanvas2D(
   h: number,
   matrix: Mat2x2,
   time: number,
+  zoom: number = 1,
 ) {
   ctx.clearRect(0, 0, w, h)
 
@@ -62,7 +63,7 @@ export function renderCanvas2D(
   maxCoord = Math.max(maxCoord, Math.abs(ti.x), Math.abs(ti.y), Math.abs(tj.x), Math.abs(tj.y))
 
   const margin = 1.2
-  const scale = (Math.min(w, h) / 2 / (maxCoord * margin))
+  const scale = (Math.min(w, h) / 2 / (maxCoord * margin)) * zoom
 
   function toCanvas(v: Vec2): [number, number] {
     return [cx + v.x * scale, cy - v.y * scale]

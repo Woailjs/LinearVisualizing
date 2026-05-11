@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { useMatrix } from '../../store/MatrixContext'
 import { useCanvas2D } from '../../hooks/useCanvas2D'
 import { useThreeScene } from '../../hooks/useThreeScene'
@@ -6,6 +6,8 @@ import { TimelineController } from './TimelineController'
 import { computeTransform2D, computeTransform3D } from './SVDStageRenderer'
 import { renderCanvas2D as render2DTransform } from '../module1-space-transform/Canvas2DRenderer'
 import { Scene3DRenderer } from '../module1-space-transform/Scene3DRenderer'
+
+const SVD_ZOOM_FACTOR = 1.4
 
 function SVD2D() {
   const { matrix22, svdResult } = useMatrix()
@@ -19,6 +21,7 @@ function SVD2D() {
   playingRef.current = playing
   speedRef.current = speed
   const uiTickRef = useRef(0)
+  const zoomRef = useRef(1)
 
   const canvasRef = useCanvas2D((ctx, w, h, dt) => {
     // Update progress when playing (merged into render loop — single rAF)
@@ -35,8 +38,21 @@ function SVD2D() {
     }
 
     const effectiveMatrix = computeTransform2D(svd2, progressRef.current)
-    render2DTransform(ctx, w, h, effectiveMatrix, performance.now() / 1000)
+    render2DTransform(ctx, w, h, effectiveMatrix, performance.now() / 1000, zoomRef.current)
   })
+
+  // Non-passive wheel listener — blocks page scroll
+  useEffect(() => {
+    const el = canvasRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY > 0 ? 1 / SVD_ZOOM_FACTOR : SVD_ZOOM_FACTOR
+      zoomRef.current = Math.max(0.1, Math.min(10, zoomRef.current * factor))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 8, flex: 1 }}>

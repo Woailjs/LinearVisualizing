@@ -6,10 +6,13 @@ import { renderCanvas2D, startTrajectory } from './Canvas2DRenderer'
 import { Scene3DRenderer } from './Scene3DRenderer'
 import type { Mat2x2 } from '../../math/types'
 
+const ZOOM_FACTOR = 1.4
+
 function SpaceTransform2D() {
   const { matrix22 } = useMatrix()
   const prevMatrixRef = useRef<Mat2x2>(matrix22)
   const timeRef = useRef(0)
+  const zoomRef = useRef(1)
 
   useEffect(() => {
     startTrajectory(prevMatrixRef.current, matrix22, timeRef.current)
@@ -18,8 +21,21 @@ function SpaceTransform2D() {
 
   const canvasRef = useCanvas2D((ctx, w, h, dt) => {
     timeRef.current += dt
-    renderCanvas2D(ctx, w, h, matrix22, timeRef.current)
+    renderCanvas2D(ctx, w, h, matrix22, timeRef.current, zoomRef.current)
   })
+
+  // Non-passive wheel listener — blocks page scroll
+  useEffect(() => {
+    const el = canvasRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY > 0 ? 1 / ZOOM_FACTOR : ZOOM_FACTOR
+      zoomRef.current = Math.max(0.1, Math.min(10, zoomRef.current * factor))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
 
   return (
     <div style={{ flex: 1, position: 'relative', minHeight: 400 }}>

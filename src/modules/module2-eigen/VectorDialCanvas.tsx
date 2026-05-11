@@ -1,65 +1,58 @@
-import { useRef, useCallback, useState } from 'react'
+import { useRef, useCallback, useEffect } from 'react'
 import { useCanvas2D } from '../../hooks/useCanvas2D'
-import type { Mat2x2, Vec2 } from '../../math/types'
+import type { Vec2 } from '../../math/types'
 import { apply22 } from '../../math/matrix'
-import { drawArrow } from '../../utils/geometry'
-import { checkSnap, type SnapState } from './EigenSnapDetector'
 import { useMatrix } from '../../store/MatrixContext'
 import type { EigenResult2 } from '../../math/types'
 
-const SNAP_THRESHOLD_DEG = 5
-const DIAL_RADIUS_RATIO = 0.32
+const DEFAULT_RANGE = 4
+const ZOOM_FACTOR = 1.4
 
 export function VectorDialCanvas() {
   const { matrix22, eigenResult } = useMatrix()
   const eigen2 = eigenResult as EigenResult2
-  const angleRef = useRef(0)
-  const [snapState, setSnapState] = useState<SnapState | null>(null)
+  const vecRef = useRef<Vec2>({ x: 1, y: 0 })
   const isDragging = useRef(false)
+  const rangeRef = useRef(DEFAULT_RANGE)
+
+  const toCanvas = (v: Vec2, scale: number, cx: number, cy: number) => ({
+    x: cx + v.x * scale,
+    y: cy - v.y * scale,
+  })
+
+  const toMath = (cxv: number, cyv: number, scale: number, cx: number, cy: number): Vec2 => ({
+    x: (cxv - cx) / scale,
+    y: -(cyv - cy) / scale,
+  })
 
   const handlePointerDown = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = e.currentTarget
     const rect = canvas.getBoundingClientRect()
-    const cx = rect.width / 2
-    const cy = rect.height / 2
-    const dx = e.clientX - rect.left - cx
-    const dy = e.clientY - rect.top - cy
-    const r = Math.min(rect.width, rect.height) * DIAL_RADIUS_RATIO
-    if (dx * dx + dy * dy <= r * r * 1.3) {
+    const w = rect.width
+    const h = rect.height
+    const cxx = w / 2
+    const cyy = h / 2
+    const scale = Math.min(w, h) / (2 * rangeRef.current)
+
+    const mx = toMath(e.clientX - rect.left, e.clientY - rect.top, scale, cxx, cyy)
+    const v = vecRef.current
+    if (Math.hypot(mx.x - v.x, mx.y - v.y) < 1.2) {
       isDragging.current = true
       canvas.setPointerCapture(e.pointerId)
-      // Immediately position pointer at click location
-      const rawAngle = Math.atan2(cy - (e.clientY - rect.top), e.clientX - rect.left - cx)
-      angleRef.current = rawAngle
     }
   }, [])
 
-  const updateAngle = useCallback(
-    (clientX: number, clientY: number, canvas: HTMLCanvasElement) => {
-      const rect = canvas.getBoundingClientRect()
-      const cx = rect.width / 2
-      const cy = rect.height / 2
-      const rawAngle = Math.atan2(cy - (clientY - rect.top), clientX - rect.left - cx)
-
-      const evs = eigen2.vectors
-      const evVals = eigen2.values
-        .filter(v => Math.abs(v.imag) < 1e-12)
-        .map(v => v.real)
-
-      const snap = checkSnap(rawAngle, evs, evVals, SNAP_THRESHOLD_DEG)
-      angleRef.current = snap.angle
-      setSnapState(snap)
-    },
-    [eigen2],
-  )
-
-  const handlePointerMove = useCallback(
-    (e: React.PointerEvent<HTMLCanvasElement>) => {
-      if (!isDragging.current) return
-      updateAngle(e.clientX, e.clientY, e.currentTarget)
-    },
-    [updateAngle],
-  )
+  const handlePointerMove = useCallback((e: React.PointerEvent<HTMLCanvasElement>) => {
+    if (!isDragging.current) return
+    const canvas = e.currentTarget
+    const rect = canvas.getBoundingClientRect()
+    const w = rect.width
+    const h = rect.height
+    const cxx = w / 2
+    const cyy = h / 2
+    const scale = Math.min(w, h) / (2 * rangeRef.current)
+    vecRef.current = toMath(e.clientX - rect.left, e.clientY - rect.top, scale, cxx, cyy)
+  }, [])
 
   const handlePointerUp = useCallback(() => {
     isDragging.current = false
@@ -68,101 +61,116 @@ export function VectorDialCanvas() {
   const canvasRef = useCanvas2D((ctx, w, h, _dt) => {
     const cx = w / 2
     const cy = h / 2
-    const r = Math.min(w, h) * DIAL_RADIUS_RATIO
+    const r = rangeRef.current
+    const scale = Math.min(w, h) / (2 * r)
 
     ctx.clearRect(0, 0, w, h)
 
-    const snapped = snapState?.snapped ?? false
-    const angle = angleRef.current
-    const inputVec: Vec2 = { x: Math.cos(angle), y: Math.sin(angle) }
-    const outputVec = apply22(matrix22, inputVec)
+    // ---- Coordinate grid ----
+    const rawStep = r / 5
+    const mag = Math.pow(10, Math.floor(Math.log10(rawStep)))
+    const residual = rawStep / mag
+    let gridStep: number
+    if (residual <= 1.5) gridStep = mag
+    else if (residual <= 3.5) gridStep = 2 * mag
+    else if (residual <= 7.5) gridStep = 5 * mag
+    else gridStep = 10 * mag
 
-    // Scale output vector to fit within dial
-    const outLen = Math.sqrt(outputVec.x * outputVec.x + outputVec.y * outputVec.y)
-    const displayScale = outLen > 0.01 ? r / Math.max(outLen, 0.01) : r
-
-    // ---- Dial circle ----
-    ctx.strokeStyle = snapped ? 'rgba(255, 215, 0, 0.6)' : 'rgba(150, 150, 180, 0.4)'
-    ctx.lineWidth = snapped ? 2.5 : 1.5
-    if (snapped) {
-      ctx.shadowColor = '#ffd700'
-      ctx.shadowBlur = 15
+    const gs = gridStep * scale
+    ctx.strokeStyle = '#e8e8e8'
+    ctx.lineWidth = 1
+    for (let x = cx % gs; x < w; x += gs) {
+      ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
     }
-    ctx.beginPath()
-    ctx.arc(cx, cy, r, 0, Math.PI * 2)
-    ctx.stroke()
-    ctx.shadowBlur = 0
+    for (let y = cy % gs; y < h; y += gs) {
+      ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(w, y); ctx.stroke()
+    }
 
-    // ---- Tick marks ----
-    ctx.fillStyle = 'rgba(200,200,220,0.5)'
-    ctx.font = '10px monospace'
+    // ---- Axes ----
+    ctx.strokeStyle = '#555'
+    ctx.lineWidth = 1.5
+    ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke()
+    ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke()
+
+    // ---- Tick labels ----
+    ctx.fillStyle = '#888'
+    ctx.font = '11px sans-serif'
     ctx.textAlign = 'center'
-    const labels = ['0°', '90°', '180°', '270°']
-    for (let i = 0; i < 4; i++) {
-      const a = (-i * Math.PI) / 2 + Math.PI / 2 // rotate so 0° is right
-      const lx = cx + (r + 18) * Math.cos(a)
-      const ly = cy - (r + 18) * Math.sin(a)
-      ctx.fillText(labels[i], lx, ly + 4)
-      // Tick
-      const tx1 = cx + (r - 6) * Math.cos(a)
-      const ty1 = cy - (r - 6) * Math.sin(a)
-      const tx2 = cx + r * Math.cos(a)
-      const ty2 = cy - r * Math.sin(a)
-      ctx.strokeStyle = 'rgba(200,200,220,0.3)'
-      ctx.lineWidth = 1
-      ctx.beginPath(); ctx.moveTo(tx1, ty1); ctx.lineTo(tx2, ty2); ctx.stroke()
+    const labelRange = Math.ceil(r / gridStep) * gridStep
+    for (let val = -labelRange; val <= labelRange; val += gridStep) {
+      if (val === 0) continue
+      const lx = cx + val * scale
+      ctx.fillText(String(val), lx, cy + 14)
+    }
+    ctx.textAlign = 'right'
+    for (let val = -labelRange; val <= labelRange; val += gridStep) {
+      if (val === 0) continue
+      const ly = cy - val * scale
+      ctx.fillText(String(val), cx - 6, ly + 4)
+    }
+    ctx.textAlign = 'right'
+    ctx.fillText('0', cx - 6, cy + 14)
+    ctx.textAlign = 'start'
+
+    // ---- Draw vectors ----
+    const v = vecRef.current
+    const Av = apply22(matrix22, v)
+
+    const vEnd = toCanvas(v, scale, cx, cy)
+    const avEnd = toCanvas(Av, scale, cx, cy)
+
+    // Av first (red, behind)
+    drawFilledArrow(ctx, cx, cy, avEnd.x, avEnd.y, '#e53935', 11)
+    ctx.fillStyle = '#e53935'
+    ctx.font = 'bold 14px sans-serif'
+    ctx.fillText('Av', avEnd.x + 8, avEnd.y - 6)
+
+    // v (blue, on top)
+    drawFilledArrow(ctx, cx, cy, vEnd.x, vEnd.y, '#1e88e5', 11)
+    ctx.fillStyle = '#1e88e5'
+    ctx.font = 'bold 14px sans-serif'
+    ctx.fillText('v', vEnd.x + 8, vEnd.y - 6)
+
+    // ---- Eigenvector detection ----
+    const vMag = Math.hypot(v.x, v.y)
+    if (vMag > 0.1) {
+      const cross = v.x * Av.y - v.y * Av.x
+      const avMag = Math.hypot(Av.x, Av.y)
+      const threshold = 0.05 * vMag * avMag
+
+      if (Math.abs(cross) < threshold) {
+        const dot = v.x * Av.x + v.y * Av.y
+        const lambda = dot / (vMag * vMag)
+        ctx.fillStyle = '#d32f2f'
+        ctx.font = 'bold 15px sans-serif'
+        ctx.textAlign = 'center'
+        ctx.fillText(`特征向量！ λ ≈ ${lambda.toFixed(2)}`, cx, h - 16)
+        ctx.textAlign = 'start'
+      }
     }
 
-    // ---- Input vector (blue) ----
-    const inX = cx + r * inputVec.x
-    const inY = cy - r * inputVec.y
-    ctx.lineWidth = 2.5
-    ctx.strokeStyle = snapped ? '#ffd700' : '#4488ff'
-    if (snapped) {
-      ctx.shadowColor = '#ffd700'
-      ctx.shadowBlur = 10
-    }
-    drawArrow(ctx, cx, cy, inX, inY, 10)
-    ctx.shadowBlur = 0
-    ctx.fillStyle = snapped ? '#ffd700' : '#88aaff'
-    ctx.font = '12px monospace'
-    ctx.textAlign = 'left'
-    ctx.fillText('v', inX + 6, inY - 6)
-
-    // ---- Output vector (orange) ----
-    const outX = cx + outputVec.x * displayScale * 0.85
-    const outY = cy - outputVec.y * displayScale * 0.85
-    ctx.lineWidth = 2.5
-    ctx.strokeStyle = snapped ? '#ffd700' : '#ff8844'
-    if (snapped) {
-      ctx.shadowColor = '#ffd700'
-      ctx.shadowBlur = 10
-    }
-    drawArrow(ctx, cx, cy, outX, outY, 10)
-    ctx.shadowBlur = 0
-    ctx.fillStyle = snapped ? '#ffd700' : '#ffaa66'
-    ctx.fillText('Av', outX + 6, outY - 6)
-
-    // ---- Snap indicator ----
-    if (snapped && snapState) {
-      ctx.fillStyle = '#ffd700'
-      ctx.font = 'bold 12px sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText(
-        `特征向量! λ = ${snapState.eigenvalue?.toFixed(2)}`,
-        cx,
-        cy - r - 20,
-      )
-    }
-
-    // ---- Complex eigenvalue warning ----
+    // Complex eigenvalue warning
     if (!eigen2.allReal) {
-      ctx.fillStyle = '#ff6666'
-      ctx.font = '11px sans-serif'
+      ctx.fillStyle = '#e53935'
+      ctx.font = '13px sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('⚠ 复特征值 — 无实特征向量', cx, cy + r + 30)
+      ctx.fillText('复特征值 — 无实特征向量', cx, h - 16)
+      ctx.textAlign = 'start'
     }
   })
+
+  // Non-passive wheel listener — blocks page scroll
+  useEffect(() => {
+    const el = canvasRef.current
+    if (!el) return
+    const onWheel = (e: WheelEvent) => {
+      e.preventDefault()
+      const factor = e.deltaY > 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR
+      rangeRef.current = Math.max(0.5, Math.min(30, rangeRef.current * factor))
+    }
+    el.addEventListener('wheel', onWheel, { passive: false })
+    return () => el.removeEventListener('wheel', onWheel)
+  }, [])
 
   return (
     <canvas
@@ -173,4 +181,41 @@ export function VectorDialCanvas() {
       onPointerUp={handlePointerUp}
     />
   )
+}
+
+function drawFilledArrow(
+  ctx: CanvasRenderingContext2D,
+  fromX: number, fromY: number,
+  toX: number, toY: number,
+  color: string,
+  headSize: number,
+) {
+  const dx = toX - fromX
+  const dy = toY - fromY
+  const len = Math.sqrt(dx * dx + dy * dy)
+  if (len < 0.5) return
+
+  ctx.beginPath()
+  ctx.moveTo(fromX, fromY)
+  ctx.lineTo(toX, toY)
+  ctx.strokeStyle = color
+  ctx.lineWidth = 2.5
+  ctx.stroke()
+
+  const ux = dx / len
+  const uy = dy / len
+  const angle = Math.atan2(uy, ux)
+  ctx.beginPath()
+  ctx.moveTo(toX, toY)
+  ctx.lineTo(
+    toX - headSize * Math.cos(angle - Math.PI / 6),
+    toY - headSize * Math.sin(angle - Math.PI / 6),
+  )
+  ctx.lineTo(
+    toX - headSize * Math.cos(angle + Math.PI / 6),
+    toY - headSize * Math.sin(angle + Math.PI / 6),
+  )
+  ctx.closePath()
+  ctx.fillStyle = color
+  ctx.fill()
 }
