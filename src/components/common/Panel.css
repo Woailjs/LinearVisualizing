@@ -1,28 +1,49 @@
 .panel {
-  background: var(--bg-secondary);
+  background: var(--bg-card);
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
+  transition: border-color 0.3s;
+}
+
+.panel:hover {
+  border-color: var(--border-glow);
 }
 
 .panel-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 16px;
+  padding: 11px 18px;
   background: var(--bg-panel);
+  border-bottom: 1px solid var(--border);
   cursor: pointer;
   user-select: none;
+  transition: background 0.2s;
+}
+
+.panel-header:hover {
+  background: #151823;
 }
 
 .panel-title {
-  font-size: 0.9rem;
-  font-weight: 600;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: 0.03em;
 }
 
 .panel-toggle {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   color: var(--text-secondary);
+  transition: transform 0.25s;
+  opacity: 0.6;
+}
+
+.panel.open .panel-toggle {
+  transform: rotate(180deg);
+  opacity: 1;
 }
 
 .panel-body {

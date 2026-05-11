@@ -1,6 +1,6 @@
 import type { Mat2x2, Vec2 } from '../../math/types'
 import { apply22 } from '../../math/matrix'
-import { generateGrid2D, drawArrow, type Line2 } from '../../utils/geometry'
+import { drawArrow, type Line2 } from '../../utils/geometry'
 import { easeInOutCubic } from '../../utils/easing'
 
 const GRID_RANGE = 5
@@ -29,8 +29,7 @@ export function startTrajectory(prevMatrix: Mat2x2, newMatrix: Mat2x2, now: numb
   trajectory.active = true
 }
 
-// Static grid lines (pre-generated)
-const staticGrid: Line2[] = generateGrid2D(GRID_RANGE)
+// Pre-generated static grid lines
 const staticGridLines: Line2[] = []
 for (let i = -GRID_RANGE; i <= GRID_RANGE; i++) {
   staticGridLines.push({ start: { x: i, y: -GRID_RANGE }, end: { x: i, y: GRID_RANGE } })

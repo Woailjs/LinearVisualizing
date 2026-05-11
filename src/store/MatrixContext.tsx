@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, useMemo, useCallback, type ReactNode } from 'react'
 import type { Mat2x2, Mat3x3, EigenResult2, EigenResult3, SVDResult2, SVDResult3 } from '../math/types'
-import { identity22, identity33, mat33From22 } from '../math/matrix'
+import { identity22, identity33 } from '../math/matrix'
 import { eigen22, eigen33 } from '../math/eigen'
 import { svd22, svd33 } from '../math/svd'
 

@@ -1,6 +1,6 @@
 import type { Mat2x2, Mat3x3, Vec2, Vec3 } from '../../math/types'
 import type { SVDResult2, SVDResult3 } from '../../math/types'
-import { apply22, multiply22, identity22, identity33, multiply33, apply33, det22, det33 } from '../../math/matrix'
+import { multiply22, identity22, identity33, multiply33, det22, det33 } from '../../math/matrix'
 import { easeInOutCubic } from '../../utils/easing'
 
 // ===== 2D SVD Stage Rendering =====

@@ -1,6 +1,5 @@
 import type { Vec2, Vec3, Mat2x2, Mat3x3 } from './types'
 
-// ===== Mat2x2 =====
 export function identity22(): Mat2x2 {
   return [[1, 0], [0, 1]]
 }
@@ -41,16 +40,6 @@ export function transpose22(m: Mat2x2): Mat2x2 {
   return [[m[0][0], m[1][0]], [m[0][1], m[1][1]]]
 }
 
-export function inverse22(m: Mat2x2): Mat2x2 | null {
-  const d = det22(m)
-  if (Math.abs(d) < 1e-15) return null
-  return [
-    [m[1][1] / d, -m[0][1] / d],
-    [-m[1][0] / d, m[0][0] / d],
-  ]
-}
-
-// ===== Mat3x3 =====
 export function identity33(): Mat3x3 {
   return [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 }
@@ -100,37 +89,5 @@ export function transpose33(m: Mat3x3): Mat3x3 {
     [m[0][0], m[1][0], m[2][0]],
     [m[0][1], m[1][1], m[2][1]],
     [m[0][2], m[1][2], m[2][2]],
-  ]
-}
-
-export function inverse33(m: Mat3x3): Mat3x3 | null {
-  const d = det33(m)
-  if (Math.abs(d) < 1e-15) return null
-
-  const inv = [
-    [
-      (m[1][1] * m[2][2] - m[1][2] * m[2][1]) / d,
-      (m[0][2] * m[2][1] - m[0][1] * m[2][2]) / d,
-      (m[0][1] * m[1][2] - m[0][2] * m[1][1]) / d,
-    ],
-    [
-      (m[1][2] * m[2][0] - m[1][0] * m[2][2]) / d,
-      (m[0][0] * m[2][2] - m[0][2] * m[2][0]) / d,
-      (m[0][2] * m[1][0] - m[0][0] * m[1][2]) / d,
-    ],
-    [
-      (m[1][0] * m[2][1] - m[1][1] * m[2][0]) / d,
-      (m[0][1] * m[2][0] - m[0][0] * m[2][1]) / d,
-      (m[0][0] * m[1][1] - m[0][1] * m[1][0]) / d,
-    ],
-  ]
-  return inv as Mat3x3
-}
-
-export function mat33From22(m: Mat2x2): Mat3x3 {
-  return [
-    [m[0][0], m[0][1], 0],
-    [m[1][0], m[1][1], 0],
-    [0, 0, 1],
   ]
 }

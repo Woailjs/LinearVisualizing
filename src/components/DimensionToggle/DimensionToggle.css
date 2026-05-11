@@ -1,28 +1,32 @@
 .dimension-toggle {
   display: flex;
-  gap: 4px;
-  background: var(--bg-secondary);
-  border-radius: 6px;
-  padding: 2px;
+  gap: 2px;
+  background: var(--bg-input);
+  border-radius: 7px;
+  padding: 3px;
+  border: 1px solid var(--border);
 }
 
 .dim-btn {
   padding: 6px 16px;
   border: none;
-  border-radius: 4px;
+  border-radius: 5px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 600;
+  font-family: 'JetBrains Mono', monospace;
   background: transparent;
   color: var(--text-secondary);
-  transition: all 0.15s;
+  transition: all 0.2s;
 }
 
 .dim-btn.active {
-  background: var(--accent);
+  background: var(--neon-orange);
   color: #fff;
+  box-shadow: 0 0 12px rgba(255, 107, 61, 0.25);
 }
 
 .dim-btn:hover:not(.active) {
   color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.03);
 }
