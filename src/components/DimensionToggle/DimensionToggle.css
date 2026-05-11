@@ -1,32 +1,32 @@
 .dimension-toggle {
   display: flex;
   gap: 2px;
-  background: var(--bg-input);
-  border-radius: 7px;
-  padding: 3px;
-  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: 0;
+  padding: 0;
+  border: none;
 }
 
 .dim-btn {
-  padding: 6px 16px;
-  border: none;
-  border-radius: 5px;
+  padding: 8px 20px;
+  border: 1px solid var(--hairline);
+  border-radius: 30px;
   cursor: pointer;
-  font-size: 0.82rem;
-  font-weight: 600;
-  font-family: 'JetBrains Mono', monospace;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 14px;
+  font-weight: 400;
   background: transparent;
-  color: var(--text-secondary);
-  transition: all 0.2s;
+  color: var(--muted);
+  transition: all 0.15s;
 }
 
 .dim-btn.active {
-  background: var(--neon-orange);
-  color: #fff;
-  box-shadow: 0 0 12px rgba(255, 107, 61, 0.25);
+  background: var(--near-black);
+  color: #ffffff;
+  border-color: var(--near-black);
 }
 
 .dim-btn:hover:not(.active) {
-  color: var(--text-primary);
-  background: rgba(255, 255, 255, 0.03);
+  color: var(--ink);
+  border-color: var(--ink);
 }

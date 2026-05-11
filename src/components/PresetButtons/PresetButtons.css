@@ -1,31 +1,30 @@
 .preset-buttons {
   display: flex;
   flex-wrap: wrap;
-  gap: 5px;
+  gap: 6px;
 }
 
 .preset-btn {
-  padding: 5px 13px;
-  border: 1px solid var(--border);
-  border-radius: 5px;
-  background: var(--bg-panel);
-  color: var(--text-secondary);
-  font-size: 0.76rem;
+  padding: 6px 14px;
+  border: 1px solid var(--hairline);
+  border-radius: 30px;
+  background: transparent;
+  color: var(--near-black);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.15s;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0;
 }
 
 .preset-btn:hover {
-  border-color: var(--neon-orange);
-  color: var(--neon-orange);
-  background: rgba(255, 107, 61, 0.06);
-  box-shadow: 0 0 16px rgba(255, 107, 61, 0.08);
-  transform: translateY(-1px);
+  border-color: var(--near-black);
+  background: var(--near-black);
+  color: #ffffff;
 }
 
 .preset-btn:active {
-  transform: translateY(0);
+  transform: scale(0.97);
 }

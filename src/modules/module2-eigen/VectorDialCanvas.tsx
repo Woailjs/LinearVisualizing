@@ -64,7 +64,8 @@ export function VectorDialCanvas() {
     const r = rangeRef.current
     const scale = Math.min(w, h) / (2 * r)
 
-    ctx.clearRect(0, 0, w, h)
+    ctx.fillStyle = '#17171c'
+    ctx.fillRect(0, 0, w, h)
 
     // ---- Coordinate grid ----
     const rawStep = r / 5
@@ -77,7 +78,7 @@ export function VectorDialCanvas() {
     else gridStep = 10 * mag
 
     const gs = gridStep * scale
-    ctx.strokeStyle = '#e8e8e8'
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)'
     ctx.lineWidth = 1
     for (let x = cx % gs; x < w; x += gs) {
       ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, h); ctx.stroke()
@@ -87,13 +88,13 @@ export function VectorDialCanvas() {
     }
 
     // ---- Axes ----
-    ctx.strokeStyle = '#555'
+    ctx.strokeStyle = 'rgba(255,255,255,0.22)'
     ctx.lineWidth = 1.5
     ctx.beginPath(); ctx.moveTo(cx, 0); ctx.lineTo(cx, h); ctx.stroke()
     ctx.beginPath(); ctx.moveTo(0, cy); ctx.lineTo(w, cy); ctx.stroke()
 
     // ---- Tick labels ----
-    ctx.fillStyle = '#888'
+    ctx.fillStyle = 'rgba(255,255,255,0.38)'
     ctx.font = '11px sans-serif'
     ctx.textAlign = 'center'
     const labelRange = Math.ceil(r / gridStep) * gridStep

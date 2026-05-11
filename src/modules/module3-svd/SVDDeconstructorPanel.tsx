@@ -138,18 +138,18 @@ function SVD3D() {
 function SVDInfo({ rank, sigmas }: { rank: number; sigmas: number[] }) {
   const maxDim = sigmas.length
   return (
-    <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+    <div style={{ fontSize: '14px', color: 'var(--muted)', lineHeight: 1.5 }}>
       <span>奇异值：</span>
       {sigmas.map((s, i) => (
-        <span key={i} style={{ color: s < 0.01 ? '#ff6666' : 'var(--text-primary)', marginLeft: 8 }}>
+        <span key={i} style={{ color: s < 0.01 ? 'var(--coral)' : 'var(--ink)', marginLeft: 8, fontFamily: "'JetBrains Mono', 'Consolas', monospace", fontSize: '13px' }}>
           σ{i + 1} = {s.toFixed(3)}
         </span>
       ))}
       <span style={{ marginLeft: 16 }}>
-        秩 = <span style={{ color: rank < maxDim ? '#ff8844' : 'var(--accent3)', fontWeight: 600 }}>{rank}</span>
+        秩 = <span style={{ color: rank < maxDim ? 'var(--coral)' : 'var(--ink)', fontWeight: 500 }}>{rank}</span>
       </span>
       {rank < maxDim && (
-        <span style={{ color: '#ff6666', marginLeft: 8 }}>
+        <span style={{ color: 'var(--coral)', marginLeft: 8, fontSize: '13px' }}>
           （非满秩 — 存在维度坍缩）
         </span>
       )}
