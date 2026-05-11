@@ -1,0 +1,30 @@
+.panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.panel-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 16px;
+  background: var(--bg-panel);
+  cursor: pointer;
+  user-select: none;
+}
+
+.panel-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.panel-toggle {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+}
+
+.panel-body {
+  padding: 16px;
+}
