@@ -22,7 +22,7 @@ export function useThreeScene(
 
     // Scene
     const scene = new THREE.Scene()
-    scene.background = new THREE.Color('#17171c')
+    scene.background = new THREE.Color('#000000')
     sceneRef.current = scene
 
     // Camera
@@ -59,7 +59,7 @@ export function useThreeScene(
     scene.add(dirLight)
 
     // Grid helper
-    const gridHelper = new THREE.GridHelper(10, 10, 0x444455, 0x222233)
+    const gridHelper = new THREE.GridHelper(10, 10, 0x3b3d45, 0x1f232b)
     scene.add(gridHelper)
 
     const loop = (timestamp: number) => {

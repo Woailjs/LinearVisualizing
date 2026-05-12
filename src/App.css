@@ -5,33 +5,42 @@
 }
 
 :root {
-  /* Cohere color system */
-  --ink: #212121;
-  --canvas: #ffffff;
-  --near-black: #17171c;
-  --cohere-black: #000000;
-  --deep-green: #003c33;
-  --dark-navy: #071829;
-  --soft-stone: #eeece7;
-  --pale-green: #edfce9;
-  --pale-blue: #f1f5ff;
-  --hairline: #d9d9dd;
-  --border-light: #e5e7eb;
-  --muted: #93939f;
-  --slate: #75758a;
-  --action-blue: #1863dc;
-  --focus-blue: #4c6ee6;
-  --coral: #ff7759;
-  --coral-soft: #ffad9b;
-  --form-focus: #9b60aa;
-  --error: #b30000;
+  /* HashiCorp surface system */
+  --canvas: #000000;
+  --surface-1: #15181e;
+  --surface-2: #1f232b;
+  --surface-3: #3b3d45;
+  --hairline: rgba(178, 182, 189, 0.10);
+  --hairline-soft: rgba(178, 182, 189, 0.06);
+
+  /* HashiCorp text */
+  --ink: #ffffff;
+  --ink-muted: #b2b6bd;
+  --ink-subtle: #656a76;
+
+  /* Inverse (for primary CTA) */
+  --inverse-canvas: #ffffff;
+  --inverse-ink: #000000;
+
+  /* Accent blue (links) */
+  --accent-blue: #2b89ff;
+
+  /* Per-module product identity */
+  --module1: #14c6cb;  /* Waypoint Cyan — Space Transform */
+  --module2: #ffcf25;  /* Vault Yellow — Eigen */
+  --module3: #7b42bc;  /* Terraform Purple — SVD */
+
+  /* Semantic */
+  --success: #00ca8e;
+  --warning: #ffcf25;
+  --error: #e62b1e;
 }
 
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
   font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
+  font-weight: 500;
+  line-height: 1.50;
   background: var(--canvas);
   color: var(--ink);
   min-height: 100vh;
@@ -41,45 +50,45 @@ body {
 
 /* ---- App shell ---- */
 .app {
-  max-width: 1440px;
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 40px 56px;
+  padding: 32px 48px 64px;
 }
 
-/* ---- Header — editorial, monumental ---- */
+/* ---- Header — editorial display ---- */
 .app-header {
-  padding: 24px 0 32px;
+  padding: 24px 0 40px;
 }
 
 .app-title {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 48px;
-  font-weight: 400;
-  line-height: 1.0;
-  letter-spacing: -0.96px;
-  color: var(--near-black);
+  font-family: 'Inter', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1.19;
+  letter-spacing: -1.0px;
+  color: var(--ink);
   margin-bottom: 6px;
 }
 
 .app-subtitle {
   font-family: 'Inter', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.5;
-  color: var(--muted);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.71;
+  color: var(--ink-muted);
   letter-spacing: 0;
 }
 
-/* ---- Control Bar — light, hairline border ---- */
+/* ---- Control Bar — surface-1 lift ---- */
 .control-bar {
   display: flex;
   align-items: center;
   gap: 14px;
   padding: 14px 20px;
-  background: var(--canvas);
+  background: var(--surface-1);
   border: 1px solid var(--hairline);
-  border-radius: 8px;
-  margin-bottom: 24px;
+  border-radius: 12px;
+  margin-bottom: 32px;
   flex-wrap: wrap;
 }
 
@@ -87,8 +96,8 @@ body {
 .panels-grid {
   display: grid;
   grid-template-columns: 2fr 1fr;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: 24px;
+  margin-bottom: 24px;
 }
 
 .panel-col {
@@ -112,32 +121,31 @@ body {
   margin-bottom: 20px;
 }
 
-/* ---- Visualization containers — dark console-like panels ---- */
+/* ---- 3D container — raw canvas black ---- */
 .three-container {
   width: 100%;
   flex: 1;
   min-height: 400px;
-  background: var(--near-black);
-  border-radius: 8px;
+  background: var(--canvas);
+  border-radius: 4px;
 }
 
 /* ---- Responsive ---- */
-@media (max-width: 900px) {
+@media (max-width: 1024px) {
   .panels-grid {
     grid-template-columns: 1fr;
   }
   .app {
-    padding: 20px 16px 40px;
-  }
-  .app-title {
-    font-size: 36px;
-    letter-spacing: -0.72px;
+    padding: 24px 24px 48px;
   }
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
+  .app {
+    padding: 16px 16px 40px;
+  }
   .app-title {
     font-size: 28px;
-    letter-spacing: -0.56px;
+    letter-spacing: -0.6px;
   }
 }

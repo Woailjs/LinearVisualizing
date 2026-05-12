@@ -23,19 +23,19 @@ function AppContent() {
 
       <div className="panels-grid">
         <div className="panel-col panel-col-wide">
-          <Panel title="1. 基础空间变换与映射" defaultOpen={true}>
+          <Panel title="基础空间变换与映射" eyebrow="Module 1 · Space Transform" accentColor="var(--module1)" defaultOpen={true}>
             <SpaceTransformPanel />
           </Panel>
         </div>
         <div className="panel-col">
-          <Panel title="2. 特征值与特征向量探测" defaultOpen={true}>
+          <Panel title="特征值与特征向量探测" eyebrow="Module 2 · Eigen Explorer" accentColor="var(--module2)" defaultOpen={true}>
             <EigenExplorerPanel />
           </Panel>
         </div>
       </div>
 
       <div className="panels-bottom">
-        <Panel title="3. 奇异值分解 (SVD) 动态解构" defaultOpen={true}>
+        <Panel title="奇异值分解 (SVD) 动态解构" eyebrow="Module 3 · SVD Deconstructor" accentColor="var(--module3)" defaultOpen={true}>
           <SVDDeconstructorPanel />
         </Panel>
       </div>

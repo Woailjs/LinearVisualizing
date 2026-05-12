@@ -1,32 +1,30 @@
 .dimension-toggle {
   display: flex;
   gap: 2px;
-  background: transparent;
-  border-radius: 0;
-  padding: 0;
-  border: none;
+  background: var(--surface-1);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid var(--hairline);
 }
 
 .dim-btn {
-  padding: 8px 20px;
-  border: 1px solid var(--hairline);
-  border-radius: 30px;
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
   cursor: pointer;
   font-family: 'JetBrains Mono', 'Consolas', monospace;
   font-size: 14px;
-  font-weight: 400;
+  font-weight: 500;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink-muted);
   transition: all 0.15s;
 }
 
 .dim-btn.active {
-  background: var(--near-black);
-  color: #ffffff;
-  border-color: var(--near-black);
+  background: var(--inverse-canvas);
+  color: var(--inverse-ink);
 }
 
 .dim-btn:hover:not(.active) {
   color: var(--ink);
-  border-color: var(--ink);
 }

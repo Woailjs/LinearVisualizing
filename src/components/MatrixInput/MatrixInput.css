@@ -5,11 +5,11 @@
 }
 
 .matrix-bracket {
-  font-family: 'Space Grotesk', 'Inter', sans-serif;
-  font-size: 1.7rem;
-  font-weight: 400;
+  font-family: 'Inter', sans-serif;
+  font-size: 1.6rem;
+  font-weight: 500;
   user-select: none;
-  color: var(--near-black);
+  color: var(--ink-muted);
 }
 
 .matrix-grid {
@@ -29,22 +29,22 @@
   text-align: center;
   font-family: 'JetBrains Mono', 'Consolas', monospace;
   font-size: 0.9rem;
-  font-weight: 400;
+  font-weight: 500;
   background: var(--canvas);
   border: 1px solid var(--hairline);
-  border-radius: 4px;
+  border-radius: 8px;
   color: var(--ink);
   outline: none;
   transition: border-color 0.15s, box-shadow 0.15s;
 }
 
 .matrix-cell:focus {
-  border-color: var(--form-focus);
-  box-shadow: 0 0 0 3px rgba(155, 96, 170, 0.12);
+  border-color: var(--accent-blue);
+  box-shadow: 0 0 0 1px var(--accent-blue);
 }
 
 .matrix-cell:hover:not(:focus) {
-  border-color: var(--muted);
+  border-color: var(--ink-subtle);
 }
 
 .matrix-cell::-webkit-inner-spin-button,

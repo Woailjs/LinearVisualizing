@@ -18,10 +18,10 @@ export function EigenExplorerPanel() {
       )}
 
       {dimension === 3 && (
-        <div style={{ color: 'var(--muted)', fontSize: '14px', padding: 8 }}>
+        <div style={{ color: 'var(--ink-muted)', fontSize: '14px', fontWeight: 500, padding: 8 }}>
           3D 特征向量探测：请使用上方基础变换模块中的 3D 视图观察旋转。
           {!eigenResult.allReal && (
-            <span style={{ color: 'var(--coral)', display: 'block', marginTop: 8 }}>
+            <span style={{ color: 'var(--error)', display: 'block', marginTop: 8 }}>
               该矩阵存在复特征值，空间中不存在不变方向的实特征向量。
             </span>
           )}
@@ -42,19 +42,21 @@ function EigenInfoBar({ dimension, eigen }: { dimension: number; eigen: EigenRes
       gap: 20,
       fontSize: '14px',
       lineHeight: 1.5,
-      padding: '10px 14px',
-      background: '#f8f8f8',
+      padding: '12px 16px',
+      background: 'var(--surface-2)',
+      border: '1px solid var(--hairline)',
       borderRadius: 8,
       flexWrap: 'wrap',
     }}>
       {/* Eigenvalues */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontWeight: 500, color: 'var(--ink)', whiteSpace: 'nowrap' }}>特征值 λ：</span>
+        <span style={{ fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', fontSize: '12px', letterSpacing: '0.6px', textTransform: 'uppercase' }}>特征值 λ：</span>
         {values.map((v, i) => (
           <span key={i} style={{
-            color: Math.abs(v.imag) < 1e-12 ? 'var(--ink)' : 'var(--coral)',
+            color: Math.abs(v.imag) < 1e-12 ? 'var(--ink)' : 'var(--error)',
             fontFamily: "'JetBrains Mono', 'Consolas', monospace",
             fontSize: '13px',
+            fontWeight: 500,
             whiteSpace: 'nowrap',
           }}>
             λ<sub>{i + 1}</sub> = {Math.abs(v.imag) < 1e-12
@@ -69,15 +71,15 @@ function EigenInfoBar({ dimension, eigen }: { dimension: number; eigen: EigenRes
 
       {/* Eigenvectors */}
       <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <span style={{ fontWeight: 500, color: 'var(--ink)', whiteSpace: 'nowrap' }}>特征向量 v：</span>
+        <span style={{ fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap', fontSize: '12px', letterSpacing: '0.6px', textTransform: 'uppercase' }}>特征向量 v：</span>
         {eigen.allReal && vectors.length > 0 ? (
           vectors.map((v, i) => (
-            <span key={i} style={{ color: 'var(--muted)', fontFamily: "'JetBrains Mono', 'Consolas', monospace", fontSize: '13px', whiteSpace: 'nowrap' }}>
+            <span key={i} style={{ color: 'var(--ink-muted)', fontFamily: "'JetBrains Mono', 'Consolas', monospace", fontSize: '13px', fontWeight: 500, whiteSpace: 'nowrap' }}>
               v<sub>{i + 1}</sub> = ({v.x.toFixed(2)}, {v.y.toFixed(2)})
             </span>
           ))
         ) : (
-          <span style={{ color: 'var(--muted)', fontStyle: 'italic' }}>
+          <span style={{ color: 'var(--ink-muted)', fontStyle: 'italic' }}>
             {eigen.allReal ? '—' : '复特征值，无实向量'}
           </span>
         )}

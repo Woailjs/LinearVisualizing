@@ -12,11 +12,11 @@
 }
 
 .tl-btn {
-  width: 32px;
-  height: 32px;
+  width: 34px;
+  height: 34px;
   border: 1px solid var(--hairline);
-  border-radius: 30px;
-  background: transparent;
+  border-radius: 8px;
+  background: var(--surface-2);
   color: var(--ink);
   cursor: pointer;
   font-size: 0.85rem;
@@ -27,9 +27,8 @@
 }
 
 .tl-btn:hover {
-  border-color: var(--near-black);
-  background: var(--near-black);
-  color: #ffffff;
+  background: var(--surface-3);
+  border-color: var(--ink-subtle);
 }
 
 .tl-btn:active {
@@ -38,48 +37,51 @@
 
 .tl-speed-group {
   display: flex;
-  gap: 4px;
+  gap: 2px;
   margin-left: 8px;
+  background: var(--surface-1);
+  border-radius: 8px;
+  padding: 3px;
+  border: 1px solid var(--hairline);
 }
 
 .tl-speed-btn {
-  padding: 4px 12px;
-  border: 1px solid var(--hairline);
-  border-radius: 30px;
+  padding: 5px 12px;
+  border: none;
+  border-radius: 6px;
   background: transparent;
-  color: var(--muted);
+  color: var(--ink-muted);
   cursor: pointer;
   font-family: 'JetBrains Mono', 'Consolas', monospace;
   font-size: 0.7rem;
-  font-weight: 400;
+  font-weight: 500;
   transition: all 0.15s;
 }
 
 .tl-speed-btn.active {
-  background: var(--near-black);
-  color: #ffffff;
-  border-color: var(--near-black);
+  background: var(--inverse-canvas);
+  color: var(--inverse-ink);
 }
 
 .tl-speed-btn:hover:not(.active) {
   color: var(--ink);
-  border-color: var(--ink);
 }
 
 .tl-track-container {
   position: relative;
-  height: 28px;
+  height: 30px;
 }
 
 .tl-stages {
   position: absolute;
-  top: 8px;
+  top: 10px;
   left: 0;
   right: 0;
   height: 10px;
-  background: var(--soft-stone);
+  background: var(--canvas);
   border-radius: 5px;
   overflow: hidden;
+  border: 1px solid var(--hairline);
 }
 
 .tl-stage-segment {
@@ -91,10 +93,10 @@
 
 .tl-scrubber {
   position: absolute;
-  top: 3px;
+  top: 5px;
   width: 14px;
   height: 20px;
-  background: var(--near-black);
+  background: var(--ink);
   border-radius: 3px;
   transform: translateX(-50%);
   pointer-events: none;
@@ -106,7 +108,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  height: 28px;
+  height: 30px;
   opacity: 0;
   cursor: pointer;
 }
@@ -120,15 +122,17 @@
 .tl-stage-label {
   position: absolute;
   transform: translateX(-50%);
-  font-size: 0.7rem;
-  font-weight: 400;
-  color: var(--slate);
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--ink-subtle);
   white-space: nowrap;
 }
 
 .tl-current-stage {
   font-family: 'Inter', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--muted);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.38;
+  color: var(--ink-muted);
 }

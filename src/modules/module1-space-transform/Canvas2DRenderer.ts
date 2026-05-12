@@ -44,7 +44,7 @@ export function renderCanvas2D(
   time: number,
   zoom: number = 1,
 ) {
-  ctx.fillStyle = '#17171c'
+  ctx.fillStyle = '#000000'
   ctx.fillRect(0, 0, w, h)
 
   const cx = w / 2

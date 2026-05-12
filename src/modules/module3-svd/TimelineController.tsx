@@ -10,9 +10,9 @@ interface TimelineControllerProps {
 }
 
 const STAGES = [
-  { label: 'V^T (旋转/反射)', range: [0, 1] as [number, number], color: '#b30000' },
-  { label: 'Σ (拉伸/压缩)', range: [1, 2] as [number, number], color: '#003c33' },
-  { label: 'U (旋转/反射)', range: [2, 3] as [number, number], color: '#1863dc' },
+  { label: 'V^T (旋转/反射)', range: [0, 1] as [number, number], color: '#14c6cb' },
+  { label: 'Σ (拉伸/压缩)', range: [1, 2] as [number, number], color: '#7b42bc' },
+  { label: 'U (旋转/反射)', range: [2, 3] as [number, number], color: '#2b89ff' },
 ]
 
 const SPEEDS = [0.25, 0.5, 1, 2]
