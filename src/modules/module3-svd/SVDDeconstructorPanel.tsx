@@ -3,25 +3,39 @@ import { useMatrix } from '../../store/MatrixContext'
 import { useCanvas2D } from '../../hooks/useCanvas2D'
 import { useThreeScene } from '../../hooks/useThreeScene'
 import { TimelineController } from './TimelineController'
-import { computeTransform2D, computeTransform3D } from './SVDStageRenderer'
+import { computeTransformFromA2D, computeTransformFromA3D } from './SVDStageRenderer'
 import { renderCanvas2D as render2DTransform } from '../module1-space-transform/Canvas2DRenderer'
 import { Scene3DRenderer } from '../module1-space-transform/Scene3DRenderer'
+import { isIdentity22, isIdentity33 } from '../../math/matrix'
 
 const SVD_ZOOM_FACTOR = 1.4
 
 function SVD2D() {
-  const { matrix22, svdResult } = useMatrix()
+  const { matrix22, matrixB22, svdResult, svdBResult } = useMatrix()
+  const bIsIdentity = isIdentity22(matrixB22)
   const svd2 = svdResult as any
+  const svdB2 = svdBResult as any
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)
-  const [displayProgress, setDisplayProgress] = useState(0)
-  const progressRef = useRef(0)
+  const [displayProgress, setDisplayProgress] = useState(bIsIdentity ? 3 : 0)
+  const progressRef = useRef(bIsIdentity ? 3 : 0)
   const playingRef = useRef(playing)
   const speedRef = useRef(speed)
   playingRef.current = playing
   speedRef.current = speed
   const uiTickRef = useRef(0)
   const zoomRef = useRef(1)
+
+  useEffect(() => {
+    if (bIsIdentity) {
+      progressRef.current = 3
+      setDisplayProgress(3)
+    } else {
+      progressRef.current = 0
+      setDisplayProgress(0)
+    }
+    setPlaying(false)
+  }, [bIsIdentity])
 
   const canvasRef = useCanvas2D((ctx, w, h, dt) => {
     // Update progress when playing (merged into render loop — single rAF)
@@ -37,8 +51,8 @@ function SVD2D() {
       }
     }
 
-    const effectiveMatrix = computeTransform2D(svd2, progressRef.current)
-    render2DTransform(ctx, w, h, effectiveMatrix, performance.now() / 1000, zoomRef.current)
+    const effectiveMatrix = computeTransformFromA2D(svdB2, matrix22, progressRef.current)
+    render2DTransform(ctx, w, h, effectiveMatrix, zoomRef.current, matrix22)
   })
 
   // Non-passive wheel listener — blocks page scroll
@@ -79,18 +93,31 @@ function SVD2D() {
 }
 
 function SVD3D() {
-  const { matrix33, svdResult } = useMatrix()
+  const { matrix33, matrixB33, svdResult, svdBResult } = useMatrix()
+  const bIsIdentity = isIdentity33(matrixB33)
   const svd3 = svdResult as any
+  const svdB3 = svdBResult as any
   const [playing, setPlaying] = useState(false)
   const [speed, setSpeed] = useState(1)
-  const [displayProgress, setDisplayProgress] = useState(0)
-  const progressRef = useRef(0)
+  const [displayProgress, setDisplayProgress] = useState(bIsIdentity ? 3 : 0)
+  const progressRef = useRef(bIsIdentity ? 3 : 0)
   const playingRef = useRef(playing)
   const speedRef = useRef(speed)
   playingRef.current = playing
   speedRef.current = speed
   const rendererRef = useRef<Scene3DRenderer | null>(null)
   const uiTickRef = useRef(0)
+
+  useEffect(() => {
+    if (bIsIdentity) {
+      progressRef.current = 3
+      setDisplayProgress(3)
+    } else {
+      progressRef.current = 0
+      setDisplayProgress(0)
+    }
+    setPlaying(false)
+  }, [bIsIdentity])
 
   const { containerRef } = useThreeScene((threeScene, _camera, dt) => {
     // Update progress when playing (merged into render loop — single rAF)
@@ -109,8 +136,8 @@ function SVD3D() {
     if (!rendererRef.current) {
       rendererRef.current = new Scene3DRenderer(threeScene)
     }
-    const effectiveMatrix = computeTransform3D(svd3, progressRef.current)
-    rendererRef.current.render(effectiveMatrix, dt)
+    const effectiveMatrix = computeTransformFromA3D(svdB3, matrix33, progressRef.current)
+    rendererRef.current.render(effectiveMatrix, dt, matrix33)
   })
 
   return (

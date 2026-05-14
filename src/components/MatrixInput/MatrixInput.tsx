@@ -1,10 +1,24 @@
 import { useCallback } from 'react'
-import { useMatrix } from '../../store/MatrixContext'
+import { useMatrix, type Dimension } from '../../store/MatrixContext'
 import type { Mat2x2, Mat3x3 } from '../../math/types'
 import './MatrixInput.css'
 
-export function MatrixInput() {
-  const { dimension, matrix22, matrix33, setMatrix22, setMatrix33 } = useMatrix()
+interface MatrixInputProps {
+  label?: string
+  matrix22?: Mat2x2
+  matrix33?: Mat3x3
+  setMatrix22?: (m: Mat2x2) => void
+  setMatrix33?: (m: Mat3x3) => void
+  dimension?: Dimension
+}
+
+export function MatrixInput(props: MatrixInputProps) {
+  const global = useMatrix()
+  const dimension = props.dimension ?? global.dimension
+  const matrix22 = props.matrix22 ?? global.matrix22
+  const matrix33 = props.matrix33 ?? global.matrix33
+  const setMatrix22 = props.setMatrix22 ?? global.setMatrix22
+  const setMatrix33 = props.setMatrix33 ?? global.setMatrix33
 
   const handleChange = useCallback(
     (row: number, col: number, value: string) => {
@@ -29,6 +43,7 @@ export function MatrixInput() {
 
   return (
     <div className="matrix-input">
+      {props.label && <span className="matrix-label">{props.label}</span>}
       <span className="matrix-bracket">{'['}</span>
       <div className="matrix-grid">
         {Array.from({ length: size }, (_, r) => (

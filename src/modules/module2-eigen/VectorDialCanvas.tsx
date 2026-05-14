@@ -9,7 +9,7 @@ const DEFAULT_RANGE = 4
 const ZOOM_FACTOR = 1.4
 
 export function VectorDialCanvas() {
-  const { matrix22, eigenResult } = useMatrix()
+  const { matrixC22, eigenResult } = useMatrix()
   const eigen2 = eigenResult as EigenResult2
   const vecRef = useRef<Vec2>({ x: 1, y: 0 })
   const isDragging = useRef(false)
@@ -115,7 +115,7 @@ export function VectorDialCanvas() {
 
     // ---- Draw vectors ----
     const v = vecRef.current
-    const Av = apply22(matrix22, v)
+    const Av = apply22(matrixC22, v)
 
     const vEnd = toCanvas(v, scale, cx, cy)
     const avEnd = toCanvas(Av, scale, cx, cy)

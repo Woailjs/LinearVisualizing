@@ -29,7 +29,8 @@ export class Scene3DRenderer {
   private transArrowLines: THREE.Line[]
   private transArrowCones: THREE.Mesh[]
 
-  // Reference cone meshes (for disposal)
+  // Reference arrow components (stored for dynamic updates)
+  private refArrowLines: THREE.Line[] = []
   private refArrowCones: THREE.Mesh[]
 
   constructor(private scene: THREE.Scene) {
@@ -96,7 +97,9 @@ export class Scene3DRenderer {
     const cones: THREE.Mesh[] = []
     const dirs: [number, number, number][] = [[1, 0, 0], [0, 0, -1], [0, 1, 0]]
     for (let i = 0; i < 3; i++) {
-      cones.push(this.addStaticArrow(this.refGroup, [0, 0, 0], dirs[i], i, true))
+      const [line, cone] = this.addStaticArrow(this.refGroup, [0, 0, 0], dirs[i], i, true)
+      this.refArrowLines.push(line)
+      cones.push(cone)
     }
     return cones
   }
@@ -107,10 +110,13 @@ export class Scene3DRenderer {
     to: [number, number, number],
     idx: number,
     dashed: boolean,
-  ): THREE.Mesh {
+  ): [THREE.Line, THREE.Mesh] {
     const dir = new THREE.Vector3(to[0] - from[0], to[1] - from[1], to[2] - from[2])
     const len = dir.length()
-    if (len < 0.01) return new THREE.Mesh() // never used
+    if (len < 0.01) {
+      const emptyLine = new THREE.Line()
+      return [emptyLine, new THREE.Mesh()]
+    }
     dir.normalize()
 
     const mat = dashed ? this.refArrowMats[idx] : this.transArrowMats[idx]
@@ -127,7 +133,7 @@ export class Scene3DRenderer {
     const quat = new THREE.Quaternion().setFromUnitVectors(defaultDir, dir)
     cone.setRotationFromQuaternion(quat)
     group.add(cone)
-    return cone
+    return [l, cone]
   }
 
   private buildTransGridLines(): THREE.Line[] {
@@ -157,7 +163,52 @@ export class Scene3DRenderer {
 
   // ---- Per-frame render (zero allocations except Vec3 temps & Quaternion) ----
 
-  render(matrix: Mat3x3, _dt: number) {
+  render(matrix: Mat3x3, _dt: number, referenceMatrix?: Mat3x3) {
+    // Update reference arrows — only visible in composition mode
+    if (referenceMatrix) {
+      const ri = apply33(referenceMatrix, { x: 1, y: 0, z: 0 })
+      const rj = apply33(referenceMatrix, { x: 0, y: 1, z: 0 })
+      const rk = apply33(referenceMatrix, { x: 0, y: 0, z: 1 })
+      const refTips: [number, number, number][] = [
+        [ri.x, ri.z, -ri.y],
+        [rj.x, rj.z, -rj.y],
+        [rk.x, rk.z, -rk.y],
+      ]
+      const _dir = new THREE.Vector3()
+      const _quat = new THREE.Quaternion()
+      const _up = new THREE.Vector3(0, 1, 0)
+      for (let i = 0; i < 3; i++) {
+        const [tx, ty, tz] = refTips[i]
+        const rLine = this.refArrowLines[i]
+        rLine.visible = true
+        if (rLine.geometry.attributes.position) {
+          const pos = rLine.geometry.attributes.position.array as Float32Array
+          pos[0] = 0; pos[1] = 0; pos[2] = 0
+          pos[3] = tx; pos[4] = ty; pos[5] = tz
+          rLine.geometry.attributes.position.needsUpdate = true
+          rLine.computeLineDistances()
+        }
+        const rCone = this.refArrowCones[i]
+        rCone.visible = true
+        rCone.position.set(tx, ty, tz)
+        _dir.set(tx, ty, tz)
+        const rlen = _dir.length()
+        if (rlen > 0.01) {
+          _dir.normalize()
+          _quat.setFromUnitVectors(_up, _dir)
+          rCone.setRotationFromQuaternion(_quat)
+          rCone.visible = true
+        } else {
+          rCone.visible = false
+        }
+      }
+    } else {
+      for (let i = 0; i < 3; i++) {
+        this.refArrowLines[i].visible = false
+        this.refArrowCones[i].visible = false
+      }
+    }
+
     // Update transformed grid lines
     for (let i = 0; i < staticGrid3D.length; i++) {
       const sl = staticGrid3D[i]

@@ -156,6 +156,36 @@ function interpolateOrtho3(Q: Mat3x3, t: number): Mat3x3 {
   }
 }
 
+// Compute the effective 2D transformation from A through B's SVD stages
+// Stage 1 [0,1]: V^T_t × A
+// Stage 2 [1,2]: Σ_t × V^T × A
+// Stage 3 [2,3]: U_t × Σ × V^T × A = B × A = C
+export function computeTransformFromA2D(svdB: SVDResult2, matrixA: Mat2x2, progress: number): Mat2x2 {
+  const t = Math.max(0, Math.min(3, progress))
+
+  // Stage 1: apply interpolated V^T to A
+  const t1 = easeInOutCubic(Math.min(1, t))
+  const Vt_t = interpolateOrtho2(svdB.Vt, t1)
+  const stage1 = multiply22(Vt_t, matrixA)
+  if (t <= 1) return stage1
+
+  // Stage 2: apply interpolated Σ after full V^T
+  const t2 = easeInOutCubic(Math.min(1, t - 1))
+  const I2 = identity22()
+  const Sigma_t: Mat2x2 = [
+    [I2[0][0] + (svdB.Sigma.x - I2[0][0]) * t2, I2[0][1]],
+    [I2[1][0], I2[1][1] + (svdB.Sigma.y - I2[1][1]) * t2],
+  ]
+  const stage2 = multiply22(Sigma_t, multiply22(svdB.Vt, matrixA))
+  if (t <= 2) return stage2
+
+  // Stage 3: apply interpolated U after full Σ × V^T
+  const t3 = easeInOutCubic(Math.min(1, t - 2))
+  const U_t = interpolateOrtho2(svdB.U, t3)
+  const Sigma_full: Mat2x2 = [[svdB.Sigma.x, 0], [0, svdB.Sigma.y]]
+  return multiply22(U_t, multiply22(Sigma_full, multiply22(svdB.Vt, matrixA)))
+}
+
 export function computeTransform3D(svd: SVDResult3, progress: number): Mat3x3 {
   const t = Math.max(0, Math.min(3, progress))
 
@@ -182,4 +212,35 @@ export function computeTransform3D(svd: SVDResult3, progress: number): Mat3x3 {
     [[svd.Sigma.x, 0, 0], [0, svd.Sigma.y, 0], [0, 0, svd.Sigma.z]],
     svd.Vt,
   ))
+}
+
+// Compute the effective 3D transformation from A through B's SVD stages
+// Stage 1 [0,1]: V^T_t × A
+// Stage 2 [1,2]: Σ_t × V^T × A
+// Stage 3 [2,3]: U_t × Σ × V^T × A = B × A = C
+export function computeTransformFromA3D(svdB: SVDResult3, matrixA: Mat3x3, progress: number): Mat3x3 {
+  const t = Math.max(0, Math.min(3, progress))
+
+  // Stage 1: apply interpolated V^T to A
+  const t1 = easeInOutCubic(Math.min(1, t))
+  const Vt_t = interpolateOrtho3(svdB.Vt, t1)
+  const stage1 = multiply33(Vt_t, matrixA)
+  if (t <= 1) return stage1
+
+  // Stage 2: apply interpolated Σ after full V^T
+  const t2 = easeInOutCubic(Math.min(1, t - 1))
+  const I3 = identity33()
+  const Sigma_t: Mat3x3 = [
+    [I3[0][0] + (svdB.Sigma.x - I3[0][0]) * t2, 0, 0],
+    [0, I3[1][1] + (svdB.Sigma.y - I3[1][1]) * t2, 0],
+    [0, 0, I3[2][2] + (svdB.Sigma.z - I3[2][2]) * t2],
+  ]
+  const stage2 = multiply33(Sigma_t, multiply33(svdB.Vt, matrixA))
+  if (t <= 2) return stage2
+
+  // Stage 3: apply interpolated U after full Σ × V^T
+  const t3 = easeInOutCubic(Math.min(1, t - 2))
+  const U_t = interpolateOrtho3(svdB.U, t3)
+  const Sigma_full: Mat3x3 = [[svdB.Sigma.x, 0, 0], [0, svdB.Sigma.y, 0], [0, 0, svdB.Sigma.z]]
+  return multiply33(U_t, multiply33(Sigma_full, multiply33(svdB.Vt, matrixA)))
 }

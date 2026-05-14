@@ -4,6 +4,16 @@
   gap: 8px;
 }
 
+.matrix-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  user-select: none;
+}
+
 .matrix-bracket {
   font-family: 'Inter', sans-serif;
   font-size: 1.6rem;
@@ -54,4 +64,19 @@
 }
 .matrix-cell {
   -moz-appearance: textfield;
+}
+
+.matrix-cell-readonly {
+  width: 64px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  font-size: 0.9rem;
+  font-weight: 500;
+  background: var(--canvas);
+  border: 1px solid var(--hairline);
+  border-radius: 8px;
+  color: var(--ink);
 }

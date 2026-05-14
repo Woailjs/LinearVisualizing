@@ -91,3 +91,33 @@ export function transpose33(m: Mat3x3): Mat3x3 {
     [m[0][2], m[1][2], m[2][2]],
   ]
 }
+
+export function isIdentity22(m: Mat2x2): boolean {
+  return (
+    m[0][0] === 1 && m[0][1] === 0 &&
+    m[1][0] === 0 && m[1][1] === 1
+  )
+}
+
+export function isIdentity33(m: Mat3x3): boolean {
+  return (
+    m[0][0] === 1 && m[0][1] === 0 && m[0][2] === 0 &&
+    m[1][0] === 0 && m[1][1] === 1 && m[1][2] === 0 &&
+    m[2][0] === 0 && m[2][1] === 0 && m[2][2] === 1
+  )
+}
+
+export function lerpMatrix22(a: Mat2x2, b: Mat2x2, t: number): Mat2x2 {
+  return [
+    [a[0][0] + (b[0][0] - a[0][0]) * t, a[0][1] + (b[0][1] - a[0][1]) * t],
+    [a[1][0] + (b[1][0] - a[1][0]) * t, a[1][1] + (b[1][1] - a[1][1]) * t],
+  ]
+}
+
+export function lerpMatrix33(a: Mat3x3, b: Mat3x3, t: number): Mat3x3 {
+  return [
+    [a[0][0] + (b[0][0] - a[0][0]) * t, a[0][1] + (b[0][1] - a[0][1]) * t, a[0][2] + (b[0][2] - a[0][2]) * t],
+    [a[1][0] + (b[1][0] - a[1][0]) * t, a[1][1] + (b[1][1] - a[1][1]) * t, a[1][2] + (b[1][2] - a[1][2]) * t],
+    [a[2][0] + (b[2][0] - a[2][0]) * t, a[2][1] + (b[2][1] - a[2][1]) * t, a[2][2] + (b[2][2] - a[2][2]) * t],
+  ]
+}

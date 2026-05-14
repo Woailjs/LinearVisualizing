@@ -1,33 +1,9 @@
 import type { Mat2x2, Vec2 } from '../../math/types'
 import { apply22 } from '../../math/matrix'
 import { drawArrow, type Line2 } from '../../utils/geometry'
-import { easeInOutCubic } from '../../utils/easing'
 
 const GRID_RANGE = 5
 const DASH_SEG = [6, 4]
-
-interface Trajectory {
-  prevIHat: Vec2
-  prevJHat: Vec2
-  startTime: number
-  duration: number // seconds
-  active: boolean
-}
-
-let trajectory: Trajectory = {
-  prevIHat: { x: 1, y: 0 },
-  prevJHat: { x: 0, y: 1 },
-  startTime: 0,
-  duration: 0.4,
-  active: false,
-}
-
-export function startTrajectory(prevMatrix: Mat2x2, newMatrix: Mat2x2, now: number) {
-  trajectory.prevIHat = apply22(prevMatrix, { x: 1, y: 0 })
-  trajectory.prevJHat = apply22(prevMatrix, { x: 0, y: 1 })
-  trajectory.startTime = now
-  trajectory.active = true
-}
 
 // Pre-generated static grid lines
 const staticGridLines: Line2[] = []
@@ -41,8 +17,8 @@ export function renderCanvas2D(
   w: number,
   h: number,
   matrix: Mat2x2,
-  time: number,
   zoom: number = 1,
+  referenceMatrix?: Mat2x2,
 ) {
   ctx.fillStyle = '#000000'
   ctx.fillRect(0, 0, w, h)
@@ -93,16 +69,20 @@ export function renderCanvas2D(
   ctx.beginPath(); ctx.moveTo(axLeft, cy); ctx.lineTo(axRight, cy); ctx.stroke()
   ctx.beginPath(); ctx.moveTo(cx, ayBottom); ctx.lineTo(cx, ayTop); ctx.stroke()
 
-  // ---- Draw reference basis vectors (dashed) ----
-  ctx.lineWidth = 2
-  ctx.setLineDash(DASH_SEG)
+  // ---- Draw reference basis vectors (dashed) — only in composition mode ----
   const [oriX, oriY] = toCanvas({ x: 0, y: 0 })
-  const [riX, riY] = toCanvas({ x: 1, y: 0 })
-  const [rjX, rjY] = toCanvas({ x: 0, y: 1 })
-  ctx.strokeStyle = 'rgba(255,100,100,0.5)'
-  drawArrow(ctx, oriX, oriY, riX, riY, 7)
-  ctx.strokeStyle = 'rgba(100,255,100,0.5)'
-  drawArrow(ctx, oriX, oriY, rjX, rjY, 7)
+  if (referenceMatrix) {
+    ctx.lineWidth = 2
+    ctx.setLineDash(DASH_SEG)
+    const refI = apply22(referenceMatrix, { x: 1, y: 0 })
+    const refJ = apply22(referenceMatrix, { x: 0, y: 1 })
+    const [riX, riY] = toCanvas(refI)
+    const [rjX, rjY] = toCanvas(refJ)
+    ctx.strokeStyle = 'rgba(255,100,100,0.5)'
+    drawArrow(ctx, oriX, oriY, riX, riY, 7)
+    ctx.strokeStyle = 'rgba(100,255,100,0.5)'
+    drawArrow(ctx, oriX, oriY, rjX, rjY, 7)
+  }
 
   // ---- Draw transformed grid (solid) ----
   ctx.setLineDash([])
@@ -119,43 +99,13 @@ export function renderCanvas2D(
     ctx.stroke()
   }
 
-  // ---- Animate trajectory or draw transformed basis vectors ----
-  let iHatDisplay: Vec2 = apply22(matrix, { x: 1, y: 0 })
-  let jHatDisplay: Vec2 = apply22(matrix, { x: 0, y: 1 })
-
-  if (trajectory.active) {
-    const elapsed = time - trajectory.startTime
-    if (elapsed >= trajectory.duration) {
-      trajectory.active = false
-    } else {
-      const t = easeInOutCubic(elapsed / trajectory.duration)
-      const iCurrent = apply22(matrix, { x: 1, y: 0 })
-      const jCurrent = apply22(matrix, { x: 0, y: 1 })
-      const iFrom = trajectory.prevIHat
-      const jFrom = trajectory.prevJHat
-      const iMid = { x: iFrom.x + (iCurrent.x - iFrom.x) * t, y: iFrom.y + (iCurrent.y - iFrom.y) * t }
-      const jMid = { x: jFrom.x + (jCurrent.x - jFrom.x) * t, y: jFrom.y + (jCurrent.y - jFrom.y) * t }
-
-      // Draw trajectory trails
-      ctx.setLineDash([2, 3])
-      ctx.strokeStyle = 'rgba(255, 100, 100, 0.3)'
-      ctx.lineWidth = 1
-      const [fx, fy] = toCanvas(iFrom)
-      ctx.beginPath(); ctx.moveTo(fx, fy); ctx.lineTo(toCanvas(iCurrent)[0], toCanvas(iCurrent)[1]); ctx.stroke()
-      ctx.strokeStyle = 'rgba(100, 255, 100, 0.3)'
-      const [fx2, fy2] = toCanvas(jFrom)
-      ctx.beginPath(); ctx.moveTo(fx2, fy2); ctx.lineTo(toCanvas(jCurrent)[0], toCanvas(jCurrent)[1]); ctx.stroke()
-
-      iHatDisplay = iMid
-      jHatDisplay = jMid
-    }
-  }
-
   // ---- Draw transformed basis vectors (solid) ----
+  const iHatDisplay = apply22(matrix, { x: 1, y: 0 })
+  const jHatDisplay = apply22(matrix, { x: 0, y: 1 })
   ctx.setLineDash([])
   ctx.lineWidth = 2.5
-  const [tix, tiy] = toCanvas(iHatDisplay!)
-  const [tjx, tjy] = toCanvas(jHatDisplay!)
+  const [tix, tiy] = toCanvas(iHatDisplay)
+  const [tjx, tjy] = toCanvas(jHatDisplay)
   ctx.strokeStyle = '#ff4444'
   drawArrow(ctx, oriX, oriY, tix, tiy, 9)
   ctx.strokeStyle = '#44ff44'
